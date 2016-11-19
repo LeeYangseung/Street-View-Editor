@@ -19,10 +19,10 @@ public class CustomAdapter extends PagerAdapter {
 
 
     LayoutInflater inflater;
+    int counter;
 
 
-
-    public CustomAdapter(LayoutInflater inflater) {
+    public CustomAdapter(LayoutInflater inflater, int counter) {
 
         // TODO Auto-generated constructor stub
 
@@ -31,6 +31,7 @@ public class CustomAdapter extends PagerAdapter {
         //전달 받은 LayoutInflater를 멤버변수로 전달
 
         this.inflater=inflater;
+        this.counter = counter;
 
     }
 
@@ -47,10 +48,9 @@ public class CustomAdapter extends PagerAdapter {
 
         // TODO Auto-generated method stub
 
-        return 10; //이미지 개수 리턴(그림이 10개라서 10을 리턴)
+        return counter; //이미지 개수 리턴(그림이 10개라서 10을 리턴)
 
     }
-
 
 
     //ViewPager가 현재 보여질 Item(View객체)를 생성할 필요가 있는 때 자동으로 호출
@@ -93,8 +93,8 @@ public class CustomAdapter extends PagerAdapter {
 
         //현재 position에 해당하는 이미지를 setting
 
-        img.setImageResource(R.drawable.gametitle_01+position);
 
+        img.setImageResource(R.drawable.gametitle_01 + position);
 
 
         //ViewPager에 만들어 낸 View 추가

@@ -34,7 +34,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="AIzaSyAfuI4IB66h2sZr6ESYMfrM9gbc4K_2_DI" />
 
         <activity
             android:name=".MapsActivity"
@@ -74,6 +74,25 @@
 
             <category android:name="android.intent.category.LAUNCHER" />
 
+        </activity>
+
+        <activity
+            android:name=".Post"
+            android:label="@string/title_activity_maps">
+
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+
+        </activity>
+        <activity
+            android:label=".Evaluate"
+            android:name="Evaluate" >
+            <intent-filter >
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
     </application>

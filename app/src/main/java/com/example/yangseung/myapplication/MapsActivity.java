@@ -108,9 +108,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         for (MarkerItem markerItem : sampleList) {
             addMarker(markerItem, false); //갈림길 위치 마크
+
         }
             add_myMarker(my_marker,false); //내위치 더하기
-
 
     }
 

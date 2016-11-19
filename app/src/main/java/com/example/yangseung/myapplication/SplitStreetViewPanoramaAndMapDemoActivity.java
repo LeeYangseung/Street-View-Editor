@@ -15,9 +15,13 @@
  */
 package com.example.yangseung.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
@@ -53,10 +57,30 @@ public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity
                     }
                 });
 
-        CustomAdapter adapter= new CustomAdapter(getLayoutInflater());
+        final CustomAdapter adapter= new CustomAdapter(getLayoutInflater(), 10);
         pager= (ViewPager)findViewById(R.id.pager);
         pager.setAdapter(adapter);
 
+
+
+        Button btn1 = (Button) findViewById(R.id.button_upload);
+        btn1.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                Intent intent = new Intent(SplitStreetViewPanoramaAndMapDemoActivity.this, Post.class);
+                intent.putExtra("now",String.valueOf(pager.getCurrentItem()));
+                startActivity(intent);
+            }
+        });
+
+        Button btn2 = (Button) findViewById(R.id.button_evaluate);
+        btn2.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                Intent intent = new Intent(SplitStreetViewPanoramaAndMapDemoActivity.this, Evaluate.class);
+                startActivity(intent);
+            }
+        });
     }
 
 }

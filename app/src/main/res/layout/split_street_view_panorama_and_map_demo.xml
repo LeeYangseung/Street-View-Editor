@@ -30,17 +30,41 @@
         <fragment
             android:id="@+id/streetviewpanorama"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0.5"
+            android:layout_height="316dp"
             class="com.google.android.gms.maps.SupportStreetViewPanoramaFragment" />
 
-
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/pager"
+        <RelativeLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="269dp">
-        </android.support.v4.view.ViewPager>
+            android:layout_height="match_parent"
+            android:keepScreenOn="true" >
+
+            <Button
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/button_upload"
+                android:background="@drawable/upload"
+                android:layout_alignParentRight="true"
+                />
+            <Button
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/button_evaluate"
+                android:background="@drawable/star"
+                android:layout_toLeftOf="@id/button_upload"
+
+                />
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/pager"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true">
+            </android.support.v4.view.ViewPager>
+        </RelativeLayout>
+
 
     </LinearLayout>
 
