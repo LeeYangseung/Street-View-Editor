@@ -22,7 +22,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+<<<<<<< HEAD
 
+=======
+        System.out.print("2016-10-31");
+       
+>>>>>>> 298ffffad731286fdb91d74562bc30aa4fc4a818
     }
 
 
