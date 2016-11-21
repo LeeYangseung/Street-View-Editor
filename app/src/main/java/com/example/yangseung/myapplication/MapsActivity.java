@@ -65,7 +65,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(my_latitude, my_longitude), 18));//시작화면 좌표 (크기)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.281855, 127.043515), 18));//시작화면 좌표 (크기)
         mMap.setOnMarkerClickListener(this);
         mMap.setOnMapClickListener(this);
 
@@ -259,7 +259,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             clicekd_longtitude = marker.getPosition().longitude;
             setNumberMarkerView();
 
-            if(flag==0&&clicked_latitude ==37.281855 && clicekd_longtitude ==127.043515){
+            if(flag==0 && clicked_latitude ==37.281855 && clicekd_longtitude ==127.043515){
                 flag=1;
                 numberList.add(new MarkerItem(37.281893, 127.043478, "1"));
                 numberList.add(new MarkerItem(37.281927, 127.043610, "2"));
@@ -281,6 +281,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .findFragmentById(R.id.map);
                 mapFragment.getMapAsync(this);
                 Intent intent = new Intent(MapsActivity.this, SplitStreetViewPanoramaAndMapDemoActivity.class);
+                intent.putExtra("clicked_latitude",clicked_latitude);
+                intent.putExtra("clicked_longtitude",clicekd_longtitude);
                 startActivity(intent);
 
             }

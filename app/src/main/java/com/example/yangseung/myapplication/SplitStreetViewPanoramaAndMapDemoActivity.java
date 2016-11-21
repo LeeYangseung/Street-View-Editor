@@ -35,13 +35,16 @@ public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity
 
     private static final LatLng SYDNEY = new LatLng(37.4958471,127.033087);
     ViewPager pager;
-
+    double clicked_latitude;
+    double clicked_longtitude;
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.split_street_view_panorama_and_map_demo);
 
-
+        Intent intent = getIntent();
+        clicked_latitude = intent.getDoubleExtra("clicked_latitude",37.4958471);
+        clicked_longtitude = intent.getDoubleExtra("clicked_longtitude",127.033087);
 
         SupportStreetViewPanoramaFragment streetViewPanoramaFragment =
                 (SupportStreetViewPanoramaFragment)
@@ -57,7 +60,7 @@ public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity
                     }
                 });
 
-        final CustomAdapter adapter= new CustomAdapter(getLayoutInflater(), 10);
+        final CustomAdapter adapter= new CustomAdapter(getLayoutInflater(), 4,clicked_latitude, clicked_longtitude, this);
         pager= (ViewPager)findViewById(R.id.pager);
         pager.setAdapter(adapter);
 
@@ -69,6 +72,8 @@ public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity
             public void onClick(View v) {
                 Intent intent = new Intent(SplitStreetViewPanoramaAndMapDemoActivity.this, Post.class);
                 intent.putExtra("now",String.valueOf(pager.getCurrentItem()));
+                intent.putExtra("clicked_latitude",clicked_latitude);
+                intent.putExtra("clicked_longtitude",clicked_longtitude);
                 startActivity(intent);
             }
         });

@@ -37,6 +37,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -47,22 +48,37 @@ import java.io.InputStreamReader;
 
 public class Post extends AppCompatActivity {
 
+    //글로벌 변수
     final int REQ_CODE_SELECT_IMAGE = 100;
     String bookPath;
     Bitmap image_bitmap = null;
     String globalResult = null;
+
+    //layout 변수
+    ImageView bookImage = null;
     ImageView imageView_test = null;
+    Button uploadBt = null;
+    TextView bookName = null;
     Button button_test = null;
+
+    //Intent로 받아오는 변수
+    String now = null;
+    double clicked_latitude = 0.0;
+    double clicked_longtitude = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post);
+
         Intent intent = getIntent();
-        String now = intent.getStringExtra("now");
-        ImageView bookImage = (ImageView) findViewById(R.id.imageView4);
-        Button uploadBt = (Button) findViewById(R.id.button_upload);
-        TextView bookName = (TextView) findViewById(R.id.nowPath);
+        clicked_latitude = intent.getDoubleExtra("clicked_latitude",0.0);
+        clicked_longtitude = intent.getDoubleExtra("clicked_longtitude",0.0);
+        now = intent.getStringExtra("now");
+
+        bookImage = (ImageView) findViewById(R.id.imageView4);
+        uploadBt = (Button) findViewById(R.id.button_upload);
+        bookName = (TextView) findViewById(R.id.nowPath);
         imageView_test = (ImageView) findViewById(R.id.imageView_test);
         button_test = (Button) findViewById(R.id.button_test);
 
@@ -92,7 +108,6 @@ public class Post extends AppCompatActivity {
                 new Thread() {
                     public void run() {
                         new HttpAsyncTask().execute("http://ec2-52-34-244-152.us-west-2.compute.amazonaws.com:8080/upload.jsp");
-
                     }
                 }.start();
             }
@@ -194,6 +209,7 @@ public class Post extends AppCompatActivity {
     }
 
     public String POST(String url, String msg) {
+
         InputStream inputStream = null;
         String result = "";
         try {
@@ -210,6 +226,9 @@ public class Post extends AppCompatActivity {
             // 3. build jsonObject
             JSONObject jsonObject = new JSONObject();
             jsonObject.accumulate("image", msg);
+            jsonObject.accumulate("coordinate_x",clicked_latitude);
+            jsonObject.accumulate("coordinate_y",clicked_longtitude);
+            jsonObject.accumulate("fork_num",Integer.parseInt(now)+1);
 
             // 4. convert JSONObject to JSON to String
             json = jsonObject.toString();
@@ -239,7 +258,6 @@ public class Post extends AppCompatActivity {
                 result = convertInputStreamToString(inputStream);
             else
                 result = "Did not work!";
-
         } catch (Exception e) {
             Log.d("InputStream", e.getLocalizedMessage());
         }
@@ -247,6 +265,7 @@ public class Post extends AppCompatActivity {
         globalResult = result;
         Log.d("6", result);
         Log.d("6", "result length: " + result.length());
+
         // 11. return result
         return result;
     }
