@@ -5,40 +5,69 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class Post extends AppCompatActivity {
 
-        final int REQ_CODE_SELECT_IMAGE = 100;
-        String bookPath;
-        Bitmap image_bitmap = null;
+    final int REQ_CODE_SELECT_IMAGE = 100;
+    String bookPath;
+    Bitmap image_bitmap = null;
+    String globalResult = null;
+    ImageView imageView_test = null;
+    Button button_test = null;
 
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.post);
-            Intent intent = getIntent();
-            String now = intent.getStringExtra("now");
-            ImageView bookImage = (ImageView) findViewById(R.id.imageView4);
-            Button uploadBt = (Button) findViewById(R.id.button_upload);
-            TextView bookName = (TextView) findViewById(R.id.nowPath);
-            bookName.setText(now);
-            bookImage.setOnClickListener(new View.OnClickListener() {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.post);
+        Intent intent = getIntent();
+        String now = intent.getStringExtra("now");
+        ImageView bookImage = (ImageView) findViewById(R.id.imageView4);
+        Button uploadBt = (Button) findViewById(R.id.button_upload);
+        TextView bookName = (TextView) findViewById(R.id.nowPath);
+        imageView_test = (ImageView) findViewById(R.id.imageView_test);
+        button_test = (Button) findViewById(R.id.button_test);
+
+        bookName.setText(now);
+        bookImage.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -57,13 +86,26 @@ public class Post extends AppCompatActivity {
                 intent.setType("image/*");
             }
         });
-            uploadBt.setOnClickListener(new View.OnClickListener() {
+        uploadBt.setOnClickListener(new View.OnClickListener() {
 
-                public void onClick(View v) {
+            public void onClick(View v) {
+                new Thread() {
+                    public void run() {
+                        new HttpAsyncTask().execute("http://ec2-52-34-244-152.us-west-2.compute.amazonaws.com:8080/upload.jsp");
 
-                }
-            });
+                    }
+                }.start();
+            }
+        });
+        button_test.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                String tmp = globalResult.replace("\\n","\n");
+                Bitmap bitmapImage = getBitmapFromString(tmp);
 
+                imageView_test.setImageBitmap(bitmapImage);
+            }
+        });
 
     }
 
@@ -75,7 +117,7 @@ public class Post extends AppCompatActivity {
                 try {
                     //Uri에서 이미지 이름을 얻어온다.
                     String name_Str = getImageNameToUri(data.getData());
-                    bookPath=getRealPathFromURI(data.getData());
+                    bookPath = getRealPathFromURI(data.getData());
 
                     //이미지 데이터를 비트맵으로 받아온다.
                     image_bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
@@ -113,8 +155,8 @@ public class Post extends AppCompatActivity {
     public String getRealPathFromURI(Uri contentUri) {
 
         // can post image
-        String [] proj={MediaStore.Images.Media.DATA};
-        Cursor cursor = managedQuery( contentUri,
+        String[] proj = {MediaStore.Images.Media.DATA};
+        Cursor cursor = managedQuery(contentUri,
                 proj, // Which columns to return
                 null,       // WHERE clause; which rows to return (all rows)
                 null,       // WHERE clause selection arguments (none)
@@ -123,6 +165,120 @@ public class Post extends AppCompatActivity {
         cursor.moveToFirst();
 
         return cursor.getString(column_index);
+    }
+
+    private String getStringFromBitmap(Bitmap bitmapPicture) {
+        /*
+        * This functions converts Bitmap picture to a string which can be
+        * JSONified.
+        * */
+        String encodedImage;
+        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
+
+        bitmapPicture.compress(Bitmap.CompressFormat.PNG, 100, byteArrayBitmapStream);
+        byte[] b = byteArrayBitmapStream.toByteArray();
+        encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+        return encodedImage;
+    }
+
+    private Bitmap getBitmapFromString(String jsonString) {
+        /*
+        * This Function converts the String back to Bitmap
+        * */
+        Log.d("7", jsonString);
+        byte[] decodedString = Base64.decode(jsonString, Base64.DEFAULT);
+        Log.d("7", "Base64 decoding");
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        Log.d("8", "BitmapFactory decoding");
+        return decodedByte;
+    }
+
+    public String POST(String url, String msg) {
+        InputStream inputStream = null;
+        String result = "";
+        try {
+            Log.d("2", "POST function");
+            // 1. create HttpClient
+            HttpClient httpclient = new DefaultHttpClient();
+
+            // 2. make POST request to the given URL
+            HttpPost httpPost = new HttpPost(url);
+
+            String json = "";
+            Log.d("3", msg);
+            Log.d("3", "msg length : " + msg.length());
+            // 3. build jsonObject
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.accumulate("image", msg);
+
+            // 4. convert JSONObject to JSON to String
+            json = jsonObject.toString();
+
+            // ** Alternative way to convert Person object to JSON string usin Jackson Lib
+            // ObjectMapper mapper = new ObjectMapper();
+            // json = mapper.writeValueAsString(person);
+
+            // 5. set json to StringEntity
+            StringEntity se = new StringEntity(json);
+
+            // 6. set httpPost Entity
+            httpPost.setEntity(se);
+
+            // 7. Set some headers to inform server about the type of the content
+            httpPost.setHeader("Accept", "application/json");
+            httpPost.setHeader("Content-type", "application/json");
+
+            // 8. Execute POST request to the given URL
+            HttpResponse httpResponse = httpclient.execute(httpPost);
+            Log.d("4", "Post executed");
+            // 9. receive response as inputStream
+            inputStream = httpResponse.getEntity().getContent();
+            Log.d("5", "Server response");
+            // 10. convert inputstream to string
+            if (inputStream != null)
+                result = convertInputStreamToString(inputStream);
+            else
+                result = "Did not work!";
+
+        } catch (Exception e) {
+            Log.d("InputStream", e.getLocalizedMessage());
+        }
+
+        globalResult = result;
+        Log.d("6", result);
+        Log.d("6", "result length: " + result.length());
+        // 11. return result
+        return result;
+    }
+
+    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+//            Context context = getApplicationContext();/*
+//            Bitmap pictureBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.aa);*/
+            String str = getStringFromBitmap(image_bitmap);
+
+            Log.d("1", "HttpAsyncTask function");
+            return POST(urls[0], str);
+        }
+
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        String line = "";
+        String result = "";
+        while ((line = bufferedReader.readLine()) != null)
+            result += line;
+
+        inputStream.close();
+        return result;
+
     }
 
 }

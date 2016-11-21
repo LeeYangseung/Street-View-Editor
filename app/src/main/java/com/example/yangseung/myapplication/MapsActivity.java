@@ -33,20 +33,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker selectedMarker;
     View marker_root_view;
     View my_position_view;
+    View number_view;
     TextView tv_marker;
     TextView my_marker;
+    TextView number_marker;
     private GoogleMap mMap;
     private GpsInfo gps;
-
+    double clicked_latitude;
+    double clicekd_longtitude;
+    static int flag=0;
+    double my_latitude;
+    double my_longitude;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        gps = new GpsInfo(MapsActivity.this);
+        my_latitude = gps.getLatitude();
+        my_longitude = gps.getLongitude();
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
 
     }
 
@@ -54,10 +64,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-
-        gps = new GpsInfo(MapsActivity.this);
-        double my_latitude = gps.getLatitude();
-        double my_longitude = gps.getLongitude();
         mMap = googleMap;
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(my_latitude, my_longitude), 18));//시작화면 좌표 (크기)
         mMap.setOnMarkerClickListener(this);
@@ -66,7 +72,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         setCustomMarkerView();
         getSampleMarkerItems();
-
 
     }
 
@@ -78,8 +83,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         my_position_view = LayoutInflater.from(this).inflate(R.layout.myposition_layout, null);
         tv_marker = (TextView) marker_root_view.findViewById(R.id.tv_marker);
         my_marker = (TextView) my_position_view.findViewById(R.id.my_position_marker);
+
     }
 
+    private  void setNumberMarkerView(){
+        number_view = LayoutInflater.from(this).inflate(R.layout.number_marker_layout, null);
+        number_marker = (TextView) number_view.findViewById(R.id.number_marker);
+    }
 
     private void getSampleMarkerItems() {
 
@@ -108,9 +118,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         for (MarkerItem markerItem : sampleList) {
             addMarker(markerItem, false); //갈림길 위치 마크
-
         }
-            add_myMarker(my_marker,false); //내위치 더하기
+        add_myMarker(my_marker,false); //내위치 더하기
+
 
     }
 
@@ -125,7 +135,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         tv_marker.setText(positionName);
         my_marker.setText(positionName);
-
 
         if (isSelectedMarker) {
             tv_marker.setBackgroundResource(R.drawable.where);
@@ -170,6 +179,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    private Marker add_number(MarkerItem markerItem, boolean isSelectedMarker) {
+
+
+        LatLng position = new LatLng(markerItem.getLat(), markerItem.getLon());
+        String positionName = markerItem.getPositionName();
+
+        number_marker.setText(positionName);
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.title(positionName);
+        markerOptions.position(position);
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(this, number_view)));
+
+        return mMap.addMarker(markerOptions);
+
+
+    }
+
 
     // View를 Bitmap으로 변환
     private Bitmap createDrawableFromView(Context context, View view) {
@@ -199,7 +225,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         MarkerItem temp = new MarkerItem(lat, lon, positionName);
         return addMarker(temp, isSelectedMarker);
 
-
     }
 
 
@@ -226,13 +251,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
+        ArrayList<MarkerItem> numberList = new ArrayList();
+
         // 선택한 마커 표시
         if (marker != null) {
-            selectedMarker = addMarker(marker, true);
-            //marker.remove();
-            Intent intent = new Intent(MapsActivity.this, SplitStreetViewPanoramaAndMapDemoActivity.class);
-            startActivity(intent);
+            clicked_latitude =marker.getPosition().latitude;
+            clicekd_longtitude = marker.getPosition().longitude;
+            setNumberMarkerView();
+
+            if(flag==0&&clicked_latitude ==37.281855 && clicekd_longtitude ==127.043515){
+                flag=1;
+                numberList.add(new MarkerItem(37.281893, 127.043478, "1"));
+                numberList.add(new MarkerItem(37.281927, 127.043610, "2"));
+                numberList.add(new MarkerItem(37.281743, 127.043542, "3"));
+
+                for (MarkerItem item : numberList) {
+                    add_number(item, false); //갈림길 위치 마크
+                }
+
+            }
+
+
+            else if (flag==1&&clicked_latitude ==37.281855 && clicekd_longtitude ==127.043515) {
+                flag=0;
+                mMap.clear();
+                my_latitude=clicked_latitude;
+                my_longitude=clicekd_longtitude;
+                SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.map);
+                mapFragment.getMapAsync(this);
+                Intent intent = new Intent(MapsActivity.this, SplitStreetViewPanoramaAndMapDemoActivity.class);
+                startActivity(intent);
+
+            }
         }
+
+
 
 
     }
