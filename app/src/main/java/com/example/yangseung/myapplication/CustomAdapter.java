@@ -104,7 +104,7 @@ public class CustomAdapter extends PagerAdapter {
                 img.setImageBitmap(bitmapArray[position]);
             }
         }catch (Exception e){
-            img.setImageBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.street));
+            img.setImageBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.bb));
         }
 
         //ViewPager에 만들어 낸 View 추가

@@ -90,8 +90,8 @@
 
         </activity>
         <activity
-            android:label=".Evaluate"
-            android:name="Evaluate" >
+            android:label="@string/title_activity_maps"
+            android:name=".Evaluate" >
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
 

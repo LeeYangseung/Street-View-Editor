@@ -33,7 +33,7 @@ import com.google.android.gms.maps.model.LatLng;
  */
 public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity {
 
-    private static final LatLng SYDNEY = new LatLng(37.4958471,127.033087);
+    private static LatLng SYDNEY =null;
     ViewPager pager;
     double clicked_latitude;
     double clicked_longtitude;
@@ -45,7 +45,7 @@ public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity
         Intent intent = getIntent();
         clicked_latitude = intent.getDoubleExtra("clicked_latitude",37.4958471);
         clicked_longtitude = intent.getDoubleExtra("clicked_longtitude",127.033087);
-
+        SYDNEY = new LatLng(clicked_latitude,clicked_longtitude);
         SupportStreetViewPanoramaFragment streetViewPanoramaFragment =
                 (SupportStreetViewPanoramaFragment)
                         getSupportFragmentManager().findFragmentById(R.id.streetviewpanorama);
