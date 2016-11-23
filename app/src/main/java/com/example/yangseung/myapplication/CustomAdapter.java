@@ -109,7 +109,6 @@ public class CustomAdapter extends PagerAdapter {
 
         //ViewPager에 만들어 낸 View 추가
         container.addView(view);
-
         //Image가 세팅된 View를 리턴
         return view;
     }
