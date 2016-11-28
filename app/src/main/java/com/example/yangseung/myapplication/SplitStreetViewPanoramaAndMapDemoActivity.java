@@ -22,6 +22,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
@@ -37,10 +39,19 @@ public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity
     ViewPager pager;
     double clicked_latitude;
     double clicked_longtitude;
+    RelativeLayout loadingLayout;
+    LinearLayout mainLayout;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.split_street_view_panorama_and_map_demo);
+
+        loadingLayout = (RelativeLayout) findViewById(R.id.loadingPanel);
+        mainLayout = (LinearLayout) findViewById(R.id.map_container2);
+
+        loadingLayout.setVisibility(View.VISIBLE);
+        mainLayout.setVisibility(View.INVISIBLE);
 
         Intent intent = getIntent();
         clicked_latitude = intent.getDoubleExtra("clicked_latitude",37.4958471);
@@ -63,7 +74,8 @@ public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity
         final CustomAdapter adapter= new CustomAdapter(getLayoutInflater(), 4,clicked_latitude, clicked_longtitude, this);
         pager= (ViewPager)findViewById(R.id.pager);
         pager.setAdapter(adapter);
-
+        loadingLayout.setVisibility(View.GONE);
+        mainLayout.setVisibility(View.VISIBLE);
 
 
         Button btn1 = (Button) findViewById(R.id.button_upload);

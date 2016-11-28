@@ -20,53 +20,70 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/map_container2"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="0.5"
-        android:orientation="vertical">
-
-        <fragment
-            android:id="@+id/streetviewpanorama"
-            android:layout_width="match_parent"
-            android:layout_height="316dp"
-            class="com.google.android.gms.maps.SupportStreetViewPanoramaFragment" />
+        android:layout_height="match_parent">
 
         <RelativeLayout
-            android:orientation="vertical"
+            android:id="@+id/loadingPanel"
+            style="@style/GenericProgressBackground"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:keepScreenOn="true" >
+            android:visibility="invisible">
 
-            <Button
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:id="@+id/button_upload"
-                android:background="@drawable/upload"
-                android:layout_alignParentRight="true"
-                />
-            <Button
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:id="@+id/button_evaluate"
-                android:background="@drawable/star"
-                android:layout_toLeftOf="@id/button_upload"
-
-                />
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/pager"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true">
-            </android.support.v4.view.ViewPager>
+            <ProgressBar
+                style="@style/GenericProgressIndicator"
+                android:layout_width="100dp"
+                android:layout_height="100dp" />
         </RelativeLayout>
 
+        <LinearLayout
+            android:id="@+id/map_container2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:orientation="vertical"
+            android:visibility="invisible">
 
-    </LinearLayout>
+            <fragment
+                android:id="@+id/streetviewpanorama"
+                class="com.google.android.gms.maps.SupportStreetViewPanoramaFragment"
+                android:layout_width="match_parent"
+                android:layout_height="316dp" />
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:keepScreenOn="true"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/button_upload"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/upload" />
+
+                <Button
+                    android:id="@+id/button_evaluate"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_toLeftOf="@id/button_upload"
+                    android:background="@drawable/star"
+
+                    />
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"></android.support.v4.view.ViewPager>
+            </RelativeLayout>
+
+
+        </LinearLayout>
+    </FrameLayout>
 
 </LinearLayout>
