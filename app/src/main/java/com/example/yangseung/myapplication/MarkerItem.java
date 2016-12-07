@@ -16,7 +16,6 @@ public class MarkerItem {
         this.lat = lat;
         this.lon = lon;
         this.positionName = positionName;
-
     }
 
 
