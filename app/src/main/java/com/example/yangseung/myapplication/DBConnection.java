@@ -28,35 +28,35 @@ public class DBConnection {
     private String[] parameter;
     private Thread thread = null;
 
-    public DBConnection(String jsp){
+    public DBConnection(String jsp) {
         this.jsp = jsp;
-        url = "http://ec2-52-34-244-152.us-west-2.compute.amazonaws.com:8080/"+jsp ;
+        url = "http://ec2-52-34-244-152.us-west-2.compute.amazonaws.com:8080/" + jsp;
     }
 
-    public DBConnection(){
+    public DBConnection() {
         url = "http://ec2-52-34-244-152.us-west-2.compute.amazonaws.com:8080/";
     }
 
     //데이터베이스에 접속하는 외부 호출함수
-    public String dbConnection(String jsp, String ... args){
+    public String dbConnection(String jsp, String... args) {
 
         try {
-            if(this.jsp == null){
+            if (this.jsp == null) {
                 url += jsp;
             }
 
             this.parameter = args;
 
-            thread = new Thread(){
+            thread = new Thread() {
                 public void run() {
 //                    new HttpAsyncTask().execute(url);
-                    POST(url,parameter);
+                    POST(url, parameter);
                 }
             };
 
             thread.start();
             thread.join();
-        }catch (InterruptedException e){
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -79,15 +79,15 @@ public class DBConnection {
             String json = "";
             // 3. build jsonObject
             JSONObject jsonObject = new JSONObject();
-            for(int i = 1; i <= msgs.length; i += 2) {
-                Log.d("3", msgs[i-1] +" : "+msgs[i]);
+            for (int i = 1; i <= msgs.length; i += 2) {
+                Log.d("3", msgs[i - 1] + " : " + msgs[i]);
                 Log.d("3", "msg length : " + msgs[i].length());
-                jsonObject.accumulate(msgs[i-1], msgs[i]);
+                jsonObject.accumulate(msgs[i - 1], msgs[i]);
             }
 
             // 4. convert JSONObject to JSON to String
             json = jsonObject.toString();
-            Log.d("3", "JSON message : "+ jsonObject.toString());
+            Log.d("3", "JSON message : " + jsonObject.toString());
 
             // ** Alternative way to convert Person object to JSON string usin Jackson Lib
             // ObjectMapper mapper = new ObjectMapper();
