@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.DisplayMetrics;
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static com.example.yangseung.myapplication.R.id.map;
 
@@ -54,8 +56,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double search_marker_y1;
     double search_marker_x2;
     double search_marker_y2;
+    ArrayList<LatLng> forkLat;
+    int currForkLoad;
     double[][] distance;
     double[][] connect;
+    int[] fork;
+    HashMap<Integer,LatLng> gom;
     LatLng[] forkLoad;
 
 
@@ -64,6 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
 
         distance = new double[][]{{0,0.144230914,0.134343337, 0.085169365, 0.047493005,0.02496929,0.421942729,0.446387033,0.324417834,0.372598785,0.188569705},
                 {0.144231,0.000000,0.043803,0.057121,0.087913,0.192957,0.704825,0.590820,0.368116,0.372576,0.121638},
@@ -89,16 +96,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
                 {0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}
         };
+
         forkLoad = new LatLng[]{new LatLng(37.49858,127.0277113), new LatLng(37.4995817,127.0270488), new LatLng(37.4997389,127.0276917),
                 new LatLng(37.4994986,127.0278), new LatLng(37.4992366,127.0279206), new LatLng(37.4987677,127.0281744),
                 new LatLng(37.499186,127.029674), new LatLng(37.4997448,127.029474), new LatLng(37.4998955,127.0289416),
                 new LatLng(37.5000929,127.0289101), new LatLng(37.4998952,127.0281062)};
 
+        fork = new int[]{2,3,4,3,3,4,4,4,3,3,3};
 
+        gom = new HashMap<Integer,LatLng>();
+        for(int i = 0; i < forkLoad.length; i++){
+            gom.put(i+1,forkLoad[i]);
+        }
 
         gps = new GpsInfo(MapsActivity.this);
-        my_latitude = gps.getLatitude();
-        my_longitude = gps.getLongitude();
+        //GPS에서 받아오기
+//        my_latitude = gps.getLatitude();
+//        my_longitude = gps.getLongitude();
+
+        //강남 고정값
+        my_latitude = 37.49800;
+        my_longitude = 127.02700;
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -141,7 +159,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(this);
         mMap.setOnMapClickListener(this);
 
-
         setCustomMarkerView();
         getSampleMarkerItems();
 
@@ -149,7 +166,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private void setCustomMarkerView() {
-
 
         marker_root_view = LayoutInflater.from(this).inflate(R.layout.marker_layout, null);
         my_position_view = LayoutInflater.from(this).inflate(R.layout.myposition_layout, null);
@@ -179,18 +195,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         sampleList.add(new MarkerItem(37.5000929,127.0289101, ""));
         sampleList.add(new MarkerItem(37.4998952,127.0281062, ""));
 
-
         //내위치 정보 받아오기
         gps = new GpsInfo(MapsActivity.this);
         double my_latitude = gps.getLatitude();
         double my_longitude = gps.getLongitude();
-        MarkerItem my_marker = new MarkerItem(my_latitude,my_longitude,"");
+        //GPS 받아오기
+//        MarkerItem my_marker = new MarkerItem(my_latitude,my_longitude,"");
+        //강남 고정값
+        MarkerItem my_marker = new MarkerItem(37.49800,127.02700,"");
 
         for (MarkerItem markerItem : sampleList) {
             addMarker(markerItem, false); //갈림길 위치 마크
         }
         add_myMarker(my_marker,false); //내위치 더하기
-
 
     }
 
@@ -256,6 +273,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String positionName = markerItem.getPositionName();
 
         number_marker.setText(positionName);
+        number_marker.setTextColor(Color.RED);
+        number_marker.setTypeface(Typeface.DEFAULT_BOLD);
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.title(positionName);
         markerOptions.position(position);
@@ -367,6 +386,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private void changeSelectedMarker(Marker marker) {
+        forkLat = new ArrayList<LatLng>();
+
         // 선택했던 마커 되돌리기
         if (selectedMarker != null) {
             addMarker(selectedMarker, false);
@@ -384,9 +405,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if(flag==0 ){
                 flag=1;
-//                numberList.add(new MarkerItem(37.281893, 127.043478, "1"));
-//                numberList.add(new MarkerItem(37.281927, 127.043610, "2"));
-//                numberList.add(new MarkerItem(37.281743, 127.043542, "3"));
+
+                for(int i = 1; i <= gom.size(); i++){
+                    if(clicked_latitude == gom.get(i).latitude){
+                        currForkLoad = i;
+                    }
+                }
+                int forkNum = fork[currForkLoad-1];
+                DBConnection conn = new DBConnection();
+                String result = conn.dbConnection("coordinate.jsp","coordinate",clicked_latitude+","+clicekd_longtitude);
+                String resultSet[] = result.split(":");
+
+                int size = Integer.parseInt(resultSet[resultSet.length-1]);
+                for(int i = 0; i < size; i++){
+                    String tmp[] = resultSet[i].split(",");
+                    double x = Double.parseDouble(tmp[0]);
+                    double y = Double.parseDouble(tmp[1]);
+                    numberList.add(new MarkerItem(x,y,Integer.toString(i+1)));
+                }
 
                 for (MarkerItem item : numberList) {
                     add_number(item, false); //갈림길 위치 마크
@@ -398,6 +434,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.clear();
                 my_latitude=clicked_latitude;
                 my_longitude=clicekd_longtitude;
+
                 SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                         .findFragmentById(map);
                 mapFragment.getMapAsync(this);
@@ -413,7 +450,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
-
 
     @Override
     public void onMapClick(LatLng latLng) {

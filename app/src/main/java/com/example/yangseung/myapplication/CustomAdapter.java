@@ -32,10 +32,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 
-/**
- * Created by Sang-Won Yeo on 2016-11-19.
- */
-
 public class CustomAdapter extends PagerAdapter {
 
 
