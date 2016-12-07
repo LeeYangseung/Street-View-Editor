@@ -41,7 +41,7 @@ public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity
     double clicked_longtitude;
     RelativeLayout loadingLayout;
     LinearLayout mainLayout;
-
+    int viewNumber;
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +56,7 @@ public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity
         Intent intent = getIntent();
         clicked_latitude = intent.getDoubleExtra("clicked_latitude",37.4958471);
         clicked_longtitude = intent.getDoubleExtra("clicked_longtitude",127.033087);
+        viewNumber = intent.getIntExtra("viewNumber", 0);
         SYDNEY = new LatLng(clicked_latitude,clicked_longtitude);
         SupportStreetViewPanoramaFragment streetViewPanoramaFragment =
                 (SupportStreetViewPanoramaFragment)
@@ -71,7 +72,7 @@ public class SplitStreetViewPanoramaAndMapDemoActivity extends AppCompatActivity
                     }
                 });
 
-        final CustomAdapter adapter= new CustomAdapter(getLayoutInflater(), 4,clicked_latitude, clicked_longtitude, this);
+        final CustomAdapter adapter= new CustomAdapter(getLayoutInflater(), 4,clicked_latitude, clicked_longtitude, this, viewNumber);
         pager= (ViewPager)findViewById(R.id.pager);
         pager.setAdapter(adapter);
         loadingLayout.setVisibility(View.GONE);

@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
@@ -43,6 +44,9 @@ public class CustomAdapter extends PagerAdapter {
     Bitmap[] bitmapArray = null;
     boolean flg = false;
     Context context;
+    int viewNumber;
+    int first = 0;
+    int lotateLength = 0;
     public CustomAdapter(LayoutInflater inflater, int counter) {
         // TODO Auto-generated constructor stub
         //전달 받은 LayoutInflater를 멤버변수로 전달
@@ -51,7 +55,7 @@ public class CustomAdapter extends PagerAdapter {
         this.counter = counter;
     }
 
-    public CustomAdapter(LayoutInflater inflater, int counter, double x, double y, Context context) {
+    public CustomAdapter(LayoutInflater inflater, int counter, double x, double y, Context context, int viewNumber) {
         // TODO Auto-generated constructor stub
         //전달 받은 LayoutInflater를 멤버변수로 전달
         this.context  = context;
@@ -60,6 +64,7 @@ public class CustomAdapter extends PagerAdapter {
 
         this.x = x;
         this.y = y;
+        this.viewNumber = viewNumber;
         new Thread() {
             public void run() {
                 new HttpAsyncTask().execute("http://ec2-52-34-244-152.us-west-2.compute.amazonaws.com:8080/download.jsp");
@@ -92,15 +97,41 @@ public class CustomAdapter extends PagerAdapter {
         //만들어진 View안에 있는 ImageView 객체 참조
         //위에서 inflated 되어 만들어진 view로부터 findViewById()를 해야 하는 것에 주의.
         ImageView img = (ImageView) view.findViewById(R.id.img_viewpager_childimage);
-
+        TextView numbering = (TextView)view.findViewById(R.id.number);
+        ImageView man = (ImageView) view.findViewById(R.id.nowLoad);
         //ImageView에 현재 position 번째에 해당하는 이미지를 보여주기 위한 작업
         //현재 position에 해당하는 이미지를 setting
         try {
             if (!bitmapArray[position].equals(null)) {
-                img.setImageBitmap(bitmapArray[position]);
+                if(viewNumber > 0 && first == 0){
+                    img.setImageBitmap(bitmapArray[viewNumber-1]);
+                    first = 1;
+                    numbering.setText(String.valueOf(viewNumber));
+                    man.setVisibility(View.VISIBLE);
+                }
+                else {
+                    if(viewNumber != 0) {
+                        if (position >= viewNumber - 1) {
+                            if(position - viewNumber + 1 == viewNumber - 1){
+                                man.setVisibility(View.VISIBLE);
+                            }
+                            img.setImageBitmap(bitmapArray[position - viewNumber + 1]);
+                            numbering.setText(String.valueOf(position - viewNumber + 2));
+                        } else {
+                            if(position + lotateLength - viewNumber + 1 == viewNumber - 1){
+                                man.setVisibility(View.VISIBLE);
+                            }
+                            img.setImageBitmap(bitmapArray[position + lotateLength - viewNumber + 1]);
+                            numbering.setText(String.valueOf(position + lotateLength - viewNumber + 2));
+                        }
+                    }
+                    else{
+                        img.setImageBitmap(bitmapArray[position]);
+                        numbering.setText(String.valueOf(position + 1));
+                    }
+                }
             }
         }catch (Exception e){
-            img.setImageBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.bb));
         }
 
         //ViewPager에 만들어 낸 View 추가
@@ -249,7 +280,7 @@ public class CustomAdapter extends PagerAdapter {
         String strArr[] = jsonString.split("~");
         Log.d("0", Integer.toString(strArr.length));
 
-
+        lotateLength = strArr.length;
         try {
             for (int i = 0; i < strArr.length; i++) {
                 JSONObject jsonObject = new JSONObject(strArr[i]);
